@@ -50,7 +50,7 @@ int main(){
         if(player_count>comp_count){
             printf("Player wins!\n");
             break;
-        }*/    //is wrong as even if the second round is a tie depending on who one the first round it will just tell they won and stop
+        }*/    //is wrong as even if the second round is a tie depending on who won the first round it will just tell they won and stop
        }       //actually its not wrong but it feels weird to end a match just because you won one round and got a tie in the next sooo.....
                //yeah it is correct but ehhh.
     }while((player_count+comp_count)<3);
