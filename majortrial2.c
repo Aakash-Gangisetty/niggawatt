@@ -12,6 +12,9 @@ void setcolor(int textcolor)
 int main() 
 
 {
+    time_t current_time;
+    struct tm *time_info;
+    
     char user_name[100];
     int PIN, user_given_pin;
     char file_name[100];
@@ -30,7 +33,7 @@ int main()
     
     switch(user_answer) 
     {
-        case 1: //existing gaccount
+        case 1: //existing account
         {
             printf("Enter your username: ");
             scanf("%s", user_name);
@@ -45,6 +48,7 @@ int main()
             fscanf(file, "balance: %d\n", &balance);
             fscanf(file, "PIN: %d\n", &PIN);
             printf("Enter your 6-digit PIN: ");
+            label9:
             scanf("%d", &user_given_pin);
 
             if (user_given_pin!=PIN) 
@@ -52,7 +56,7 @@ int main()
                 setcolor(4);
                 printf("The pin you've typed is incorrect lmao try again\n");
                 fclose(file);
-                goto label6;
+                goto label9;
                 return 1;
             }
 
@@ -83,9 +87,9 @@ int main()
 
             printf("Enter your desired six-digit PIN: ");
             scanf("%d", &PIN);
-            balance=1000000;
             fprintf(file, "balance: %d\n", balance);
             fprintf(file, "PIN: %d\n", PIN);
+            fprintf(file, "\nHistory:\n");
             fclose(file);
             setcolor(2);
             printf("An account has been made\n");
@@ -135,12 +139,25 @@ int main()
             balance -= withdraw;
             setcolor(2);
             printf("you have succuessfully withdrawn %d, Your new balance is: %d\n",withdraw,balance);
-            fprintf(file, "\nwithdrawn %d",withdraw);
             setcolor(14);
             printf("You're transaction interaction has been saved at:\n %s\n", file_name);
             setcolor(15);
+            
+            rewind(file);
+            fprintf(file, "balance: %d\n", balance);
+            fprintf(file, "PIN: %d\n", PIN);
+            fclose(file);
+            
+            fopen(file_name, "a");
+            {
+                time(&current_time);
+                time_info = localtime(&current_time);
+                fprintf(file, "\nAn amount of %d was withdrawn from %s on %02d/%02d/%04d at %02d:%02d:%02d",withdraw,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+            }    
+            fclose(file);
             printf("would you like to make another transaction?\npress\n1 for yes\n2 to close\n");
             scanf("%d",&buffer2);
+
             if(buffer2==1)
             {
                 goto label5;
@@ -156,10 +173,23 @@ int main()
         balance += credit;
         setcolor(2);
         printf("you have successfully credited %d, Your new balance is: %d\n\n",credit,balance);
-        fprintf(file, "\ncredited %d",credit);
         setcolor(14);
         printf("You're transaction has been saved at\n %s\n", file_name);
         setcolor(15);
+        
+        rewind(file);
+        fprintf(file, "balance: %d\n", balance);
+        fprintf(file, "PIN: %d\n", PIN);
+        fclose(file);
+
+        fopen(file_name, "a");
+        {
+            time(&current_time);
+            time_info = localtime(&current_time);
+            fprintf(file, "\nAn amount of %d was credited to %s on %02d/%02d/%04d at %02d:%02d:%02d",credit,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+        }
+        fclose(file);
+        
         printf("would you like to make another transaction?\npress \n1 for yes\n2 to close\n");
         scanf("%d",&buffer2);
         if(buffer2==1)
@@ -189,7 +219,7 @@ int main()
         fopen(file_name, "r+");
         fscanf(file, "balance: %d", &balance);
         
-        if(transfer_amo<balance)
+        if(transfer_amo<=balance)
         {
             balance-=transfer_amo;
             setcolor(2);
@@ -198,11 +228,25 @@ int main()
             fclose(file);printf("An amount of %d has been transfered from",transfer_amo);
             printf(" %s to %s\n",user_name,transfer_acc);
             setcolor(15);
+            printf("your new balance is %d",transfer_amo);
             file = fopen(transfer_file, "r+");
             rewind(file);
             fscanf(file, "balance: %d\n", &balance);
             balance+=transfer_amo;
             fprintf(file, "balance: %d", balance);
+
+            rewind(file);
+            fprintf(file, "balance: %d\n", balance);
+            fprintf(file, "PIN: %d\n", PIN);
+            fclose(file);
+
+            fopen(file_name, "a");
+            {
+                time(&current_time);
+                time_info = localtime(&current_time);
+                fprintf(file, "\nAn amount of %d was transfered from %s to %s on %02d/%02d/%04d at %02d:%02d:%02d",transfer_amo,user_name,transfer_acc,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+            }   
+            fclose(file);
             
         }
         else
@@ -230,12 +274,7 @@ int main()
         printf("\ngimme a proper answer nigga\n\n");
         goto label5;
     }
-    rewind(file);
-    fprintf(file, "balance: %d\n", balance);
-    fprintf(file, "PIN: %d\n", PIN);
 
-    fclose(file);
-    setcolor(15);
     return 0;
 
 
