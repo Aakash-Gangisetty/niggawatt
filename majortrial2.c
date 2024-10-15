@@ -10,7 +10,6 @@ void setcolor(int textcolor)
     SetConsoleTextAttribute(hConsole, textcolor);
 }
 int main() 
-
 {
     time_t current_time;
     struct tm *time_info;
@@ -87,6 +86,7 @@ int main()
 
             printf("Enter your desired six-digit PIN: ");
             scanf("%d", &PIN);
+            balance=1000000;//setting default balance
             fprintf(file, "balance: %d\n", balance);
             fprintf(file, "PIN: %d\n", PIN);
             fprintf(file, "\nHistory:\n");
@@ -139,20 +139,25 @@ int main()
             balance -= withdraw;
             setcolor(2);
             printf("you have succuessfully withdrawn %d, Your new balance is: %d\n",withdraw,balance);
-            setcolor(14);
-            printf("You're transaction interaction has been saved at:\n %s\n", file_name);
-            setcolor(15);
             
             rewind(file);
             fprintf(file, "balance: %d\n", balance);
             fprintf(file, "PIN: %d\n", PIN);
             fclose(file);
-            
-            fopen(file_name, "a");
+
+            if(withdraw!=0)
             {
-                time(&current_time);
-                time_info = localtime(&current_time);
-                fprintf(file, "\nAn amount of %d was withdrawn from %s on %02d/%02d/%04d at %02d:%02d:%02d",withdraw,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+                setcolor(14);
+                printf("You're transaction has been saved at:\n %s\n", file_name);
+                setcolor(15);
+            
+                fopen(file_name, "a");
+                {
+                    time(&current_time);
+                    time_info = localtime(&current_time);
+                    fprintf(file, "\nAn amount of %d was withdrawn from %s on %02d/%02d/%04d at %02d:%02d:%02d",
+                    withdraw,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+                }
             }    
             fclose(file);
             printf("would you like to make another transaction?\npress\n1 for yes\n2 to close\n");
@@ -173,20 +178,24 @@ int main()
         balance += credit;
         setcolor(2);
         printf("you have successfully credited %d, Your new balance is: %d\n\n",credit,balance);
-        setcolor(14);
-        printf("You're transaction has been saved at\n %s\n", file_name);
-        setcolor(15);
         
         rewind(file);
         fprintf(file, "balance: %d\n", balance);
         fprintf(file, "PIN: %d\n", PIN);
         fclose(file);
-
-        fopen(file_name, "a");
+        
+        if(credit!=0)
         {
-            time(&current_time);
-            time_info = localtime(&current_time);
-            fprintf(file, "\nAn amount of %d was credited to %s on %02d/%02d/%04d at %02d:%02d:%02d",credit,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+            setcolor(14);
+            printf("You're transaction has been saved at\n %s\n", file_name);
+            setcolor(15);
+            fopen(file_name, "a");
+            {
+                time(&current_time);
+                time_info = localtime(&current_time);
+                fprintf(file, "\nAn amount of %d was credited to %s on %02d/%02d/%04d at %02d:%02d:%02d",
+                credit,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+            }
         }
         fclose(file);
         
@@ -222,17 +231,21 @@ int main()
         if(transfer_amo<=balance)
         {
             balance-=transfer_amo;
+
             setcolor(2);
             rewind(file);
             fprintf(file, "balance: %d\n", balance);
             fclose(file);printf("An amount of %d has been transfered from",transfer_amo);
             printf(" %s to %s\n",user_name,transfer_acc);
             setcolor(15);
-            printf("your new balance is %d",transfer_amo);
+            printf("your new balance is %d\n",balance);
             file = fopen(transfer_file, "r+");
+
             rewind(file);
             fscanf(file, "balance: %d\n", &balance);
+            
             balance+=transfer_amo;
+            
             fprintf(file, "balance: %d", balance);
 
             rewind(file);
@@ -240,14 +253,30 @@ int main()
             fprintf(file, "PIN: %d\n", PIN);
             fclose(file);
 
-            fopen(file_name, "a");
+            if(transfer_amo!=0)
             {
-                time(&current_time);
-                time_info = localtime(&current_time);
-                fprintf(file, "\nAn amount of %d was transfered from %s to %s on %02d/%02d/%04d at %02d:%02d:%02d",transfer_amo,user_name,transfer_acc,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
-            }   
-            fclose(file);
-            
+                setcolor(14);
+                printf("You're transaction has been saved at\n %s\n", file_name);
+                setcolor(15);
+
+                fopen(file_name, "a");
+                {
+                    time(&current_time);
+                    time_info = localtime(&current_time);
+                    fprintf(file, "\nAn amount of %d was transferred from %s to %s on %02d/%02d/%04d at %02d:%02d:%02d",
+                    transfer_amo,user_name,transfer_acc,
+                    time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+                }   
+                fclose(file);
+                fopen(transfer_file, "a");
+                {
+                    time(&current_time);
+                    time_info = localtime(&current_time);
+                    fprintf(file, "\nAn amount of %d was transferred from %s to you on %02d/%02d/%04d at %02d:%02d:%02d",
+                    transfer_amo,user_name,
+                    time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+                }
+            }
         }
         else
         {
@@ -276,6 +305,5 @@ int main()
     }
 
     return 0;
-
 
 }
