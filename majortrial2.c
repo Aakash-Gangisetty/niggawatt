@@ -36,7 +36,7 @@ int main()
         {
             printf("Enter your username: ");
             scanf("%s", user_name);
-            sprintf(file_name,"C:\\Users\\gangi\\OneDrive\\Desktop\\stuff\\School\\vscode\\local_storage\\ATM\\%s.txt",user_name);
+            sprintf(file_name,"C:\\BANK_local_storage\\%s.txt",user_name);
                 file = fopen(file_name, "r");
             if (file == NULL) 
             {
@@ -73,7 +73,7 @@ int main()
             printf("To create an account, enter your desired username: ");
             label4:
             scanf("%s", user_name);
-            sprintf(file_name, "C:\\Users\\gangi\\OneDrive\\Desktop\\stuff\\School\\vscode\\local_storage\\ATM\\%s.txt", user_name);
+            sprintf(file_name, "C:\\BANK_local_storage\\%s.txt", user_name);
             file = fopen(file_name, "w");
             if (file==NULL) 
             {
@@ -211,7 +211,7 @@ int main()
         printf("which account do you want to transfer money to?\n");
         label7:
         scanf("%s",transfer_acc);
-        sprintf(transfer_file,"C:\\Users\\gangi\\OneDrive\\Desktop\\stuff\\School\\vscode\\local_storage\\ATM\\%s.txt",transfer_acc);
+        sprintf(transfer_file,"C:\\BANK_local_storage\\%s.txt",transfer_acc);
         fopen(transfer_file, "r+");
         if(file==NULL)
         {
