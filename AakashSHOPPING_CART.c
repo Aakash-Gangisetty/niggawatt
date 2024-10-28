@@ -4,15 +4,18 @@
 #include<windows.h>
 #include<time.h>
 
- void setcolor(int textcolor)
- {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-  	SetConsoleTextAttribute(hConsole, textcolor);
- }
-
-int main()
+void setcolor(int textcolor)
 {
-	int n,add_it;
+  HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+ 	SetConsoleTextAttribute(hConsole, textcolor);
+}
+int main()  
+{
+  
+  time_t current_time;
+  struct tm *time_info;
+	
+  int n,add_it;
 	int item_co[100];
 	char item_n[100][100];
 	int tot_co=0;
@@ -40,6 +43,7 @@ int main()
   {
     case 1: //existing account
     {
+      label1a:
       printf("Enter your username: ");
       scanf("%s", user_name);
       sprintf(file_name,"C:\\BANK_local_storage\\%s.txt",user_name);
@@ -48,7 +52,7 @@ int main()
       if (file == NULL) 
       {
         printf("Looks like you don't actually have an account\n");
-        goto label1;
+        goto label1a;
       }
 
       fscanf(file, "balance: %d\n", &balance);
@@ -75,8 +79,7 @@ int main()
     break;
     }
     case 2: //no account
-    {
-      label1:
+    { 
       printf("To create an account, enter your desired username: ");
       label4:
       scanf("%s", user_name);
@@ -165,7 +168,7 @@ int main()
 			{
 				printf("%-20s %d\n",item_n[i],item_co[i]);
 			}
-			printf("total               %d",tot_co);
+			printf("total                %d\n",tot_co);
 		}
 		break;
 	}
@@ -178,14 +181,83 @@ int main()
     printf("The pin you've typed is incorrect lmao try again\n");
     setcolor(15);
     fclose(file);
-    goto label9;
   	return 1;
   }
 	else if (user_given_pin==PIN)
 	{
 		if(tot_co<balance)
 		{
-			
-		}
-	}
+      {
+       withdraw=tot_co;
+        {
+          balance -= withdraw;
+          setcolor(2);
+          printf("An amount of %d has been taken from your account.\n%d is your balance now\n",withdraw,balance);
+          setcolor(15);  
+          rewind(file);
+          fprintf(file, "balance: %d\n", balance);
+          fprintf(file, "PIN: %d\n", PIN);
+          fclose(file);
+
+          if(withdraw!=0)
+          {
+            setcolor(14);
+            printf("You're transaction has been saved at:\n %s\n", file_name);
+            setcolor(15);
+           
+            fopen(file_name, "a");
+            {
+              time(&current_time);
+              time_info = localtime(&current_time);
+              fprintf(file, "\nAn amount of %d was withdrawn from %s on %02d/%02d/%04d at %02d:%02d:%02d for your cart",
+              withdraw,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+            }
+          } 	
+        }		
+		  }
+	  }
+    else if (tot_co > balance) //not enough money
+    {
+      setcolor(4);
+      printf("\nyou're too broke for this shit.\n");
+      setcolor(2);
+      printf("would you like to credit some money with which you can complete the purchase\n1 for yes\n2 to cLose, your list will be saved\n");
+      setcolor(15);
+      scanf("%d",&buffer2);
+      if(buffer2==1)
+      {
+        credit=balance-tot_co;
+        {
+          label8:
+          printf("Please enter the amount you would like to credit: ");
+          scanf("%d", &credit);
+
+          balance += credit;
+          setcolor(2);
+          printf("you have successfully credited %d, Your new balance is: %d\n\n",credit,balance);
+
+          rewind(file);
+          fprintf(file, "balance: %d\n", balance);
+          fprintf(file, "PIN: %d\n", PIN);
+          fclose(file);
+          
+          if(credit!=0)
+          {
+            setcolor(14);
+            printf("You're transaction has been saved at\n %s\n", file_name);
+            setcolor(15);
+            fopen(file_name, "a");
+            {
+              time(&current_time);
+              time_info = localtime(&current_time);
+              fprintf(file, "\nAn amount of %d was credited to %s on %02d/%02d/%04d at %02d:%02d:%02d",
+              credit,user_name,time_info->tm_mday,time_info->tm_mon+1,time_info->tm_year+1900,time_info->tm_hour,time_info->tm_min,time_info->tm_sec);
+            }
+          } 
+          fclose(file);
+        }
+      }
+    } 
+     
+  }
 }
